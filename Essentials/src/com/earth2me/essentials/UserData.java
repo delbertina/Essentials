@@ -75,6 +75,7 @@ public abstract class UserData extends PlayerExtension implements IConf {
         muteTimeout = _getMuteTimeout();
         jailed = _getJailed();
         jailTimeout = _getJailTimeout();
+        jailReason = _getJailReason();
         lastLogin = _getLastLogin();
         lastLogout = _getLastLogout();
         lastLoginAddress = _getLastLoginAddress();
@@ -528,6 +529,7 @@ public abstract class UserData extends PlayerExtension implements IConf {
     }
 
     private boolean jailed;
+    private String jailReason;
 
     private boolean _getJailed() {
         return config.getBoolean("jailed", false);
@@ -547,6 +549,29 @@ public abstract class UserData extends PlayerExtension implements IConf {
         boolean ret = !isJailed();
         setJailed(ret);
         return ret;
+    }
+
+    public String _getJailReason() {
+        return config.getString("jailReason");
+    }
+
+    public String getJailReason() {
+        return jailReason;
+    }
+
+    public void setJailReason(String reason) {
+        if (reason == null) {
+            config.removeProperty("jailReason");
+            jailReason = null;
+        } else {
+            jailReason = reason;
+            config.setProperty("jailReason", reason);
+        }
+        config.save();
+    }
+
+    public boolean hasJailReason() {
+        return jailReason != null;
     }
 
     private long jailTimeout;

@@ -114,7 +114,12 @@ public class Commandseen extends EssentialsCommand {
             sender.sendMessage(tl("whoisAFK", tl("true")));
         }
         if (user.isJailed()) {
-            sender.sendMessage(tl("whoisJail", (user.getJailTimeout() > 0 ? DateUtil.formatDateDiff(user.getJailTimeout()) : tl("true"))));
+            long jailTimeout = user.getJailTimeout();
+            if (!user.hasJailReason()) {
+                sender.sendMessage(tl("whoisJail", (jailTimeout > 0 ? DateUtil.formatDateDiff(jailTimeout) : tl("true"))));
+            } else {
+                sender.sendMessage(tl("whoisJailReason", (jailTimeout > 0 ? DateUtil.formatDateDiff(jailTimeout) : tl("true")), user.getJailReason()));
+            }
         }
         if (user.isMuted()) {
             sender.sendMessage(tl("whoisMuted", (user.getMuteTimeout() > 0 ? DateUtil.formatDateDiff(user.getMuteTimeout()) : tl("true"))));
@@ -156,6 +161,15 @@ public class Commandseen extends EssentialsCommand {
                     expireString = DateUtil.formatDateDiff(expiry.getTime());
                 }
                 sender.sendMessage(tl("whoisTempBanned", expireString));
+            }
+        }
+
+        if (user.isJailed()) {
+            long jailTimeout = user.getJailTimeout();
+            if (!user.hasJailReason()) {
+                sender.sendMessage(tl("whoisJail", (jailTimeout > 0 ? DateUtil.formatDateDiff(jailTimeout) : tl("true"))));
+            } else {
+                sender.sendMessage(tl("whoisJailReason", (jailTimeout > 0 ? DateUtil.formatDateDiff(jailTimeout) : tl("true")), user.getJailReason()));
             }
         }
 
