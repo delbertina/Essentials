@@ -55,11 +55,23 @@ public class Commandtogglejail extends EssentialsCommand {
                 player.setJail(args[1]);
                 long timeDiff = 0;
                 if (args.length > 2) {
-                    final String time = getFinalArg(args, 2);
-                    timeDiff = DateUtil.parseDateDiff(time, true);
+                    final String time = args[2];
+                    String jailReason;
+                    try {
+                        timeDiff = DateUtil.parseDateDiff(time, true);
+                        jailReason = getFinalArg(args, 3);
+                    } catch (Exception e) {
+                        jailReason = getFinalArg(args, 2);
+                    }
+                    player.setJailReason(jailReason.isEmpty() ? null : jailReason);
                     player.setJailTimeout(timeDiff);
                 }
-                sender.sendMessage((timeDiff > 0 ? tl("playerJailedFor", player.getName(), DateUtil.formatDateDiff(timeDiff)) : tl("playerJailed", player.getName())));
+                if (!player.hasJailReason()) {
+                    sender.sendMessage((timeDiff > 0 ? tl("playerJailedFor", player.getName(), DateUtil.formatDateDiff(timeDiff)) : tl("playerJailed", player.getName())));
+                } else {
+                    sender.sendMessage((timeDiff > 0 ? tl("playerJailedForReason", player.getName(), DateUtil.formatDateDiff(timeDiff), player.getJailReason()) :
+                            tl("playerJailedReason", player.getName(), player.getJailReason())));
+                }
             }
             return;
         }
@@ -70,10 +82,19 @@ public class Commandtogglejail extends EssentialsCommand {
         }
 
         if (args.length >= 2 && player.isJailed() && args[1].equalsIgnoreCase(player.getJail())) {
-            final String time = getFinalArg(args, 2);
-            final long timeDiff = DateUtil.parseDateDiff(time, true);
+            long timeDiff = 0;
+            final String time = args[2];
+            String jailReason;
+            try {
+                timeDiff = DateUtil.parseDateDiff(time, true);
+                jailReason = getFinalArg(args, 3);
+            } catch (Exception e) {
+                throw new NotEnoughArgumentsException();
+            }
+            if (timeDiff <= 0) {throw new NotEnoughArgumentsException();}
             player.setJailTimeout(timeDiff);
-            sender.sendMessage(tl("jailSentenceExtended", DateUtil.formatDateDiff(timeDiff)));
+            player.setJailReason(jailReason.isEmpty() ? null : jailReason);
+            sender.sendMessage(player.hasJailReason() ? (tl("jailSentenceExtendedReason", DateUtil.formatDateDiff(timeDiff), player.getJailReason())) : (tl("jailSentenceExtended", DateUtil.formatDateDiff(timeDiff))));
             return;
         }
 
@@ -88,6 +109,7 @@ public class Commandtogglejail extends EssentialsCommand {
             if (!event.isCancelled()) {
                 player.setJailed(false);
                 player.setJailTimeout(0);
+                player.setJailReason(null);
                 player.sendMessage(tl("jailReleasedPlayerNotify"));
                 player.setJail(null);
                 if (player.getBase().isOnline()) {
